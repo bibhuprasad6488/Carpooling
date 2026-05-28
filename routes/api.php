@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\RideController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VehicleController;
@@ -12,6 +13,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'paswordReset']);
+
+    // Route::post('/find-rides', [RideController::class, 'findRides']);
+    // Route::post('/search-locaton', [RideController::class, 'searchLocations']);
 
     Route::middleware('auth:sanctum')->group(function () {
         // Fetch the authenticated user along with their userDetails if they exist
@@ -34,6 +38,14 @@ Route::prefix('v1')->group(function () {
         // Ride Management
         Route::get('/rides', [RideController::class, 'index']);
         Route::post('/find-rides', [RideController::class, 'findRides']);
+        Route::post('/search-locaton', [RideController::class, 'searchLocations']);
         Route::post('/store-ride-data', [RideController::class, 'store']);
+
+        // Booking Management
+        Route::get('/driver/booking-requests', [BookingController::class, 'index']);
+        Route::post('/create-booking-request', [BookingController::class, 'store']);
+        Route::post('/bookings/{id}/accept', [BookingController::class, 'acceptUserBooking']);
+        Route::post('/bookings/{id}/reject', [BookingController::class, 'rejectUserBooking']);
+        Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancelUserBooking']);
     });
 });

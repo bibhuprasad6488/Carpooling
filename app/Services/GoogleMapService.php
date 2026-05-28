@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GoogleMapService
 {
@@ -19,7 +20,8 @@ class GoogleMapService
         ]);
 
         if ($response->failed() || empty($response['routes'])) {
-            throw new \Exception('Unable to fetch route from Google Maps.');
+            // Log::error('Error: ', ['resp' => $response]);
+            throw new \Exception($responseData['error_message'] ?? 'Unable to fetch route from Google Maps.');
         }
 
         $route = $response['routes'][0];

@@ -22,13 +22,11 @@ return new class extends Migration
             $table->string('driver_license')->nullable();
             $table->string('adhhar_card')->nullable();
             $table->string('pan_card')->nullable();
-            $table->string('pass_photo')->nullable();
             $table->string('bank_account')->nullable();
             $table->string('bank_account_holder')->nullable();
             $table->string('bank_account_number')->nullable();
             $table->string('bank_account_ifsc')->nullable();
-            $table->string('bank_branch_name')->nullable();
-            $table->string('bank_branch_code')->nullable();
+            $table->string('bank_name')->nullable();
             $table->string('profile_picture')->nullable();
             $table->string('is_verified')->default(0);
             $table->string('status')->default('pending');

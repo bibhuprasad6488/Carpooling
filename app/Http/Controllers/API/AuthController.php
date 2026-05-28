@@ -19,8 +19,8 @@ class AuthController extends Controller
     {
         $validated = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            // 'email' => 'required|string|email|max:255|unique:users,email',
-            'email' => 'required|string|email|max:255',
+            'email' => 'required|string|email|unique:users,email',
+            // 'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8',
             'role_id' => 'required|integer|exists:roles,id'
         ]);
@@ -57,8 +57,7 @@ class AuthController extends Controller
             $userDetails->bank_account_holder = $request->bank_account_holder;
             $userDetails->bank_account_number = $request->bank_account_number;
             $userDetails->bank_account_ifsc = $request->bank_account_ifsc;
-            $userDetails->bank_branch_name = $request->bank_branch_name;
-            $userDetails->bank_branch_code = $request->bank_branch_code;
+            $userDetails->bank_name = $request->bank_branch_name;
 
             $destinationPath = public_path('uploads/user/');
             if (!file_exists($destinationPath)) {
@@ -86,14 +85,6 @@ class AuthController extends Controller
                 $filename = 'pan_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
                 $userDetails->pan_card = $filename;
-            }
-
-            // Pass Photo
-            if ($request->hasFile('pass_photo')) {
-                $file = $request->file('pass_photo');
-                $filename = 'passphoto_' . time() . '_' . $file->getClientOriginalName();
-                $file->move($destinationPath, $filename);
-                $userDetails->pass_photo = $filename;
             }
 
             // Bank account
