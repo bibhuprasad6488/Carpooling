@@ -34,7 +34,7 @@ return new class extends Migration
             $table->date('ride_date');
             $table->time('departure_time');
 
-            $table->string('polyline')->nullable();          // Encoded route for quick map rendering
+            $table->longText('polyline')->nullable();          // Encoded route for quick map rendering
             $table->integer('distance_meters')->nullable();  // Total distance
             $table->integer('duration_seconds')->nullable(); // Travel duration
             $table->text('estimated_reach_time')->nullable();
@@ -50,6 +50,7 @@ return new class extends Migration
 
             // Capacity
             $table->integer('total_seats');
+            $table->integer('available_seats');
 
             // Status
             $table->enum('status', ['scheduled', 'ongoing', 'completed', 'cancelled'])

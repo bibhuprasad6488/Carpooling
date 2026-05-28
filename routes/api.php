@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
 
         // Ride Management
         Route::get('/rides', [RideController::class, 'index']);
+        Route::post('/find-rides', [RideController::class, 'findRides']);
         Route::post('/store-ride-data', [RideController::class, 'store']);
     });
 });

@@ -17,7 +17,6 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-
         $validated = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             // 'email' => 'required|string|email|max:255|unique:users,email',
@@ -70,7 +69,7 @@ class AuthController extends Controller
                 $file = $request->file('driver_license');
                 $filename = 'dl_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
-                $userDetails->driver_license = $destinationPath . $filename;
+                $userDetails->driver_license = $filename;
             }
 
             // Adhhar Card
@@ -78,7 +77,7 @@ class AuthController extends Controller
                 $file = $request->file('adhhar_card');
                 $filename = 'adhhar_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
-                $userDetails->adhhar_card = $destinationPath . $filename;
+                $userDetails->adhhar_card = $filename;
             }
 
             // Pan Card
@@ -86,7 +85,7 @@ class AuthController extends Controller
                 $file = $request->file('pan_card');
                 $filename = 'pan_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
-                $userDetails->pan_card = $destinationPath . $filename;
+                $userDetails->pan_card = $filename;
             }
 
             // Pass Photo
@@ -94,7 +93,7 @@ class AuthController extends Controller
                 $file = $request->file('pass_photo');
                 $filename = 'passphoto_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
-                $userDetails->pass_photo = $destinationPath . $filename;
+                $userDetails->pass_photo = $filename;
             }
 
             // Bank account
@@ -102,7 +101,7 @@ class AuthController extends Controller
                 $file = $request->file('bank_account');
                 $filename = 'bankaccount_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
-                $userDetails->bank_account = $destinationPath . $filename;
+                $userDetails->bank_account = $filename;
             }
 
             // Profile picture
@@ -110,7 +109,7 @@ class AuthController extends Controller
                 $file = $request->file('profile_picture');
                 $filename = 'profile_' . time() . '_' . $file->getClientOriginalName();
                 $file->move($destinationPath, $filename);
-                $userDetails->profile_picture = $destinationPath . $filename;
+                $userDetails->profile_picture = $filename;
             }
 
 
@@ -184,7 +183,7 @@ class AuthController extends Controller
 
         // Generate OTP for to send through email or phone
     }
-    
+
     public function logout()
     {
         $authUser = Auth::user();

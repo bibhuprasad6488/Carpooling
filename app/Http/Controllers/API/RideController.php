@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class RideController extends Controller
@@ -55,7 +56,7 @@ class RideController extends Controller
             'source_lat' => 'required',
             'source_lng' => 'required',
             'destination_lat' => 'required',
-            
+
             'destination_lng' => 'required',
             'ride_date' => 'required',
             'departure_time' => 'required',
@@ -81,15 +82,17 @@ class RideController extends Controller
 
             // Fetch route from Google Maps
             $route = $this->googleMapService->getRouteDetails(
-                $request->pickup_lat,
-                $request->pickup_lng,
-                $request->drop_lat,
-                $request->drop_lng,
+                $request->source_lat,
+                $request->source_lng,
+                $request->destination_lat,
+                $request->destination_lng,
                 $departureDateTime->timestamp
             );
+            Log::info("route", ['resp' => $route]);
 
             // Decode polyline to route points
             $routePoints = $this->googleMapService->decodePolyline($route['polyline']);
+            Log::info("polyline", ['resp' => $routePoints]);
 
 
             $estimatedArrival = $departureDateTime
@@ -109,10 +112,12 @@ class RideController extends Controller
             $ride->ride_date = $request->ride_date;
             $ride->departure_time = $request->departure_time;
             $ride->estimated_reach_time = $estimatedArrival->format('H:i:s');
+            $ride->polyline = $route['polyline'];
             $ride->distance_meters = $route['distance'];
             $ride->duration_seconds = $route['duration_in_traffic'];
             $ride->price_per_seat = $request->price_per_seat;
             $ride->total_seats = $request->total_seats;
+            $ride->available_seats = $request->total_seats;
             $ride->pet_allowed = $request->pet_allowed;
             $ride->smoking_allowed = $request->smoking_allowed;
             $ride->instant_booking = $request->instant_booking;
@@ -121,7 +126,7 @@ class RideController extends Controller
             $ride->save();
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => 'Ride Data Created successfully'], 201);
+            return response()->json(['status' => 'success', 'message' => 'Ride Published successfully'], 201);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => 'Error: ' . $th->getMessage()], 500);
