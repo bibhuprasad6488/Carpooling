@@ -8,6 +8,7 @@ use App\Models\Ride;
 use App\Services\GoogleMapService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -50,55 +51,63 @@ class RideController extends Controller
         }
 
         try {
-            $rideSearch = Ride::with('driver', 'driver.userDetails', 'vehicle')
-                ->where('source_address', $request->source_address)
-                ->where('destination_address', $request->destination_address)
-                ->whereDate('ride_date', $request->ride_date)
-                ->where(
-                    'available_seats',
-                    '>=',
-                    $request->no_of_seats
-                )
-                ->where('status', 'scheduled')->get()->map(function ($ride) {
-                    $driverDetails = $ride->driver->userDetails;
-                    $vehicleDetails = $ride->vehicle;
-                    // return $ride;
-                    return [
-                        "id" => $ride->id,
-                        "source_address" => $ride->source_address,
-                        "destination_address" => $ride->destination_address,
-                        "source_lat" => $ride->source_lat,
-                        "source_lng" => $ride->source_lng,
-                        "destination_lat" => $ride->destination_lat,
-                        "destination_lng" => $ride->destination_lng,
-                        "ride_date" => $ride->ride_date,
-                        "departure_time" => $ride->departure_time,
-                        "distance_meters" => $ride->distance_meters,
-                        "duration_seconds" => $ride->duration_seconds,
-                        "estimated_reach_time" => $ride->estimated_reach_time,
-                        "pet_allowed" => $ride->pet_allowed,
-                        "smoking_allowed" => $ride->smoking_allowed,
-                        "instant_booking" => $ride->instant_booking,
-                        "max_two_in_back" => $ride->max_two_in_back,
-                        "price_per_seat" => $ride->price_per_seat,
-                        "total_seats" => $ride->total_seats,
-                        "available_seats" => $ride->available_seats,
-                        "status" => $ride->status,
-                        "driver_id" => $ride->driver_id,
-                        "driver_name" => $ride->driver->name,
-                        "driver_email" => $ride->driver->email,
-                        "driver_phone" => $ride->driver->phone,
-                        "driver_profile_picture" => ($driverDetails && $driverDetails->profile_picture) ? asset('uploads/user/' . $driverDetails->profile_picture) : '',
-                        "driver_is_verified" => $driverDetails->is_verified,
-                        "vehicle_id" => $ride->vehicle_id,
-                        "vehicle_type" => $vehicleDetails->vehicle_type,
-                        "brand" => $vehicleDetails->brand,
-                        "model" => $vehicleDetails->model,
-                        "manufacture_year" => $vehicleDetails->manufacture_year,
-                        "registration_number" => $vehicleDetails->registration_number,
-                        "fuel_type" => $vehicleDetails->fuel_type,
-                    ];
-                });
+
+            $cacheKey = 'rides_' . md5(json_encode($request->all()));
+            $rideSearch = Cache::remember(
+                $cacheKey,
+                now()->addMinutes(5),
+                function () use ($request) {
+                    return Ride::with('driver', 'driver.userDetails', 'vehicle')
+                        ->where('source_address', $request->source_address)
+                        ->where('destination_address', $request->destination_address)
+                        ->whereDate('ride_date', $request->ride_date)
+                        ->where(
+                            'available_seats',
+                            '>=',
+                            $request->no_of_seats
+                        )
+                        ->where('status', 'scheduled')->get()->map(function ($ride) {
+                            $driverDetails = $ride->driver->userDetails;
+                            $vehicleDetails = $ride->vehicle;
+                            // return $ride;
+                            return [
+                                "id" => $ride->id,
+                                "source_address" => $ride->source_address,
+                                "destination_address" => $ride->destination_address,
+                                "source_lat" => $ride->source_lat,
+                                "source_lng" => $ride->source_lng,
+                                "destination_lat" => $ride->destination_lat,
+                                "destination_lng" => $ride->destination_lng,
+                                "ride_date" => $ride->ride_date,
+                                "departure_time" => $ride->departure_time,
+                                "distance_meters" => $ride->distance_meters,
+                                "duration_seconds" => $ride->duration_seconds,
+                                "estimated_reach_time" => $ride->estimated_reach_time,
+                                "pet_allowed" => $ride->pet_allowed,
+                                "smoking_allowed" => $ride->smoking_allowed,
+                                "instant_booking" => $ride->instant_booking,
+                                "max_two_in_back" => $ride->max_two_in_back,
+                                "price_per_seat" => $ride->price_per_seat,
+                                "total_seats" => $ride->total_seats,
+                                "available_seats" => $ride->available_seats,
+                                "status" => $ride->status,
+                                "driver_id" => $ride->driver_id,
+                                "driver_name" => $ride->driver->name,
+                                "driver_email" => $ride->driver->email,
+                                "driver_phone" => $ride->driver->phone,
+                                "driver_profile_picture" => ($driverDetails && $driverDetails->profile_picture) ? asset('uploads/user/' . $driverDetails->profile_picture) : '',
+                                "driver_is_verified" => $driverDetails->is_verified,
+                                "vehicle_id" => $ride->vehicle_id,
+                                "vehicle_type" => $vehicleDetails->vehicle_type,
+                                "brand" => $vehicleDetails->brand,
+                                "model" => $vehicleDetails->model,
+                                "manufacture_year" => $vehicleDetails->manufacture_year,
+                                "registration_number" => $vehicleDetails->registration_number,
+                                "fuel_type" => $vehicleDetails->fuel_type,
+                            ];
+                        });
+                }
+            );
 
             return response()->json(['status' => 'success', 'rides' => $rideSearch]);
         } catch (\Throwable $th) {
@@ -111,38 +120,40 @@ class RideController extends Controller
 
     public function searchLocations(Request $request)
     {
-        $keyword = $request->keyword;
+        $keyword = trim($request->keyword);
 
-        $sources = Ride::where('source_address', 'LIKE', "%$keyword%")
-            ->distinct()
-            ->pluck('source_address');
+        $cacheKey = 'locations_' . md5($keyword);
 
-        $destinations = Ride::where('destination_address', 'LIKE', "%$keyword%")
-            ->distinct()
-            ->pluck('destination_address');
+        $locations = Cache::remember(
 
-        // $sources = Ride::where('source_address', 'LIKE', "%{$keyword}%")
-        //     ->select(
-        //         'source_address as address',
-        //         'source_lat as latitude',
-        //         'source_lng as longitude'
-        //     )
-        //     ->distinct()
-        //     ->get();
+            $cacheKey,
 
-        // $destinations = Ride::where('destination_address', 'LIKE', "%{$keyword}%")
-        //     ->select(
-        //         'destination_address as address',
-        //         'destination_lat as latitude',
-        //         'destination_lng as longitude'
-        //     )
-        //     ->distinct()
-        //     ->get();
+            now()->addHours(1),
 
-        $locations = $sources
-            ->merge($destinations)
-            ->unique()
-            ->values();
+            function () use ($keyword) {
+
+                $sources = Ride::where(
+                    'source_address',
+                    'LIKE',
+                    "%{$keyword}%"
+                )
+                    ->distinct()
+                    ->pluck('source_address');
+
+                $destinations = Ride::where(
+                    'destination_address',
+                    'LIKE',
+                    "%{$keyword}%"
+                )
+                    ->distinct()
+                    ->pluck('destination_address');
+
+                return $sources
+                    ->merge($destinations)
+                    ->unique()
+                    ->values();
+            }
+        );
 
         return response()->json($locations);
     }

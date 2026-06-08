@@ -107,18 +107,50 @@ class DriverController extends Controller
         DB::beginTransaction();
         try {
             $driverDetails = UserDetail::find($id);
-            if ($docType == 'dl') {
-                $driverDetails->is_dl_verified = $status;
-            } elseif ($docType == 'adhhar') {
-                $driverDetails->is_adhhar_verified = $status;
-            } elseif ($docType == 'pan') {
-                $driverDetails->is_pan_verified = $status;
-            } elseif ($docType == 'account') {
-                $driverDetails->is_account_verified = $status;
+
+            $map = [
+                'dl'      => 'is_dl_verified',
+                'adhhar'  => 'is_adhhar_verified',
+                'pan'     => 'is_pan_verified',
+                'account' => 'is_account_verified',
+            ];
+
+            if (!isset($map[$docType])) {
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid document type.'
+                ], 422);
             }
+
+            $field = $map[$docType];
+
+            $driverDetails->$field = $status;
+
+            $statuses = [
+                $driverDetails->is_dl_verified,
+                $driverDetails->is_adhhar_verified,
+                $driverDetails->is_pan_verified,
+                $driverDetails->is_account_verified,
+            ];
+
+            if (
+                count(array_unique($statuses)) === 1 &&
+                $statuses[0] === 'approved'
+            ) {
+                $driverDetails->status = 'verified';
+                $driverDetails->is_verified = 1;
+            } elseif (in_array('rejected', $statuses)) {
+                $driverDetails->status = 'rejected';
+                $driverDetails->is_verified = 0;
+            } else {
+                $driverDetails->status = 'pending';
+                $driverDetails->is_verified = 0;
+            }
+
             $driverDetails->save();
             DB::commit();
-            
+
             return response()->json([
                 'status' => true,
                 'message' => 'Document Status Changed'

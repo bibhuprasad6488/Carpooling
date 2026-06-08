@@ -35,6 +35,12 @@
                         <p>Drivers</p>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->routeIs(['admin.vehicle.*']) ? 'active' : '' }} ">
+                    <a href="{{ route('admin.vehicle.index') }}">
+                        <i class="fas fa-car"></i>
+                        <p>Vehicles</p>
+                    </a>
+                </li>
                 {{-- <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>

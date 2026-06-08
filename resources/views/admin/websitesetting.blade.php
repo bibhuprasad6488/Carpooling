@@ -253,6 +253,15 @@
 
                             <div class="form-group row  mb-2">
                                 <label for=""
+                                    class="col-md-3 d-flex justify-content-end col-sm-3 col-xs-12">Commission (%)
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="number" name="commision" id="commision" class="form-control "
+                                        value="{{ optional($setting)->commision }}" required>
+                                </div>
+                            </div>
+                            <div class="form-group row  mb-2">
+                                <label for=""
                                     class="col-md-3 d-flex justify-content-end col-sm-3 col-xs-12">Copyrights
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">

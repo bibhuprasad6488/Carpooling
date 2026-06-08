@@ -30,8 +30,15 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    
+
     'google_maps' => [
         'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    'razorpay' => [
+
+        'key' => env('RAZORPAY_KEY'),
+
+        'secret' => env('RAZORPAY_SECRET'),
     ],
 ];

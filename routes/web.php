@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\VehicleController;
 use App\Http\Controllers\Admin\WebsiteSettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         Route::resource('/drivers', DriverController::class)->names('driver');
+        Route::resource('/vehicles', VehicleController::class)->names('vehicle');
         Route::resource('/website-setting', WebsiteSettingController::class)->names('website-setting');
     });
 });

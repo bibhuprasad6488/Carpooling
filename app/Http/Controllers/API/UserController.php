@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -75,5 +76,34 @@ class UserController extends Controller
     {
         $roles = Role::where('id', '!=', 1)->get();
         return response()->json($roles);
+    }
+
+    public function getSiteData()
+    {
+        $setting = SiteSetting::find(1);
+
+        if ($setting) {
+            $setting->site_logo = $setting->site_logo
+                ? asset('storage/images/settings/' . $setting->site_logo)
+                : '';
+
+            $setting->footer_logo = $setting->footer_logo
+                ? asset('storage/images/settings/' . $setting->footer_logo)
+                : '';
+
+            $setting->footer_logo_one = $setting->footer_logo_one
+                ? asset('storage/images/settings/' . $setting->footer_logo_one)
+                : '';
+
+            $setting->footer_logo_two = $setting->footer_logo_two
+                ? asset('storage/images/settings/' . $setting->footer_logo_two)
+                : '';
+
+            $setting->favicon = $setting->favicon
+                ? asset('storage/images/settings/' . $setting->favicon)
+                : '';
+        }
+
+        return response()->json($setting);
     }
 }

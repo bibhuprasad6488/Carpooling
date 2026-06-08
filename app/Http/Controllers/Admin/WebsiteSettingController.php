@@ -73,6 +73,7 @@ class WebsiteSettingController extends Controller
             $setting->call_wp_number = $request->call_wp_number;
             $setting->wp_message = $request->wp_message;
             $setting->copyright = $request->copyright;
+            $setting->commision = $request->commision;
             $setting->site_desc = $request->site_desc;
             $setting->site_map_key = $request->site_map_key;
             $setting->address = $request->address;

@@ -14,8 +14,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'paswordReset']);
 
-    // Route::post('/find-rides', [RideController::class, 'findRides']);
-    // Route::post('/search-locaton', [RideController::class, 'searchLocations']);
+    Route::post('/find-rides', [RideController::class, 'findRides']);
+    Route::post('/search-locaton', [RideController::class, 'searchLocations']);
+    Route::get('/get-website-data', [UserController::class, 'getSiteData']);
 
     Route::middleware('auth:sanctum')->group(function () {
         // Fetch the authenticated user along with their userDetails if they exist
@@ -37,13 +38,14 @@ Route::prefix('v1')->group(function () {
 
         // Ride Management
         Route::get('/rides', [RideController::class, 'index']);
-        Route::post('/find-rides', [RideController::class, 'findRides']);
-        Route::post('/search-locaton', [RideController::class, 'searchLocations']);
         Route::post('/store-ride-data', [RideController::class, 'store']);
 
         // Booking Management
         Route::get('/driver/booking-requests', [BookingController::class, 'index']);
         Route::post('/create-booking-request', [BookingController::class, 'store']);
+        Route::post('/payment-success', [BookingController::class, 'paymentSuccess']);
+        Route::post('/payment-failed', [BookingController::class, 'paymentFailed']);
+
         Route::post('/bookings/{id}/accept', [BookingController::class, 'acceptUserBooking']);
         Route::post('/bookings/{id}/reject', [BookingController::class, 'rejectUserBooking']);
         Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancelUserBooking']);
