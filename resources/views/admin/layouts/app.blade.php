@@ -48,6 +48,8 @@
 
     <link href="{{ asset('admin/assets/summernote/summernote.min.css') }}" rel="stylesheet">
 
+        <!-- Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .fade-notify {
             opacity: 1;

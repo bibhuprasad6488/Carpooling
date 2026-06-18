@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -155,12 +156,121 @@ class AuthController extends Controller
             ], 401);
         }
         $user->userDetails;
+        if ($user->userDetails) {
+            $user->userDetails->profile_picture =
+                $user->userDetails->profile_picture
+                ? asset('uploads/user/' . $user->userDetails->profile_picture)
+                : '';
+        }
 
         // $user->tokens()->delete();
         // $token = $user->createToken('auth_token')->plainTextToken;
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json(['status' => 'success', 'message' => 'Login successful', 'user' => $user, 'token' => $token,], 200);
+    }
+
+
+    public function checkPhone(Request $request)
+    {
+        $validated = Validator::make($request->all(), [
+            'phone' => 'required|exists:users,phone',
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validated->errors()->first()], 422);
+        }
+        $user = User::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ]);
+        }
+
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    public function sendOTP(Request $request)
+    {
+        $validated = Validator::make($request->all(), [
+            'phone' => 'required|exists:users,phone',
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validated->errors()->first()], 422);
+        }
+
+        try {
+            $otp = rand(100000, 999999);
+            $user = User::where('phone', $request->phone)->first();
+            if (!$user) {
+                return response()->json(['status' => 'error', 'message' => 'No record found on this number']);
+            }
+            $user->otp = $otp;
+            $user->save();
+
+            // Send otp to user mobile number
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'An OTP has been sent to your mobile number',
+                'otp' => $otp
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'error', 'message' => 'Error: ' . $th->getMessage()]);
+        }
+    }
+
+    public function verifyOTP(Request $request)
+    {
+        $validated = Validator::make($request->all(), [
+            'phone' => 'required|exists:users,phone',
+            'otp' => 'required'
+        ]);
+
+        if ($validated->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validated->errors()->first()], 422);
+        }
+
+        try {
+            $user = User::where('phone', $request->phone)->first();
+            if (!$user) {
+                return response()->json(['status' => 'error', 'message' => 'No data found for this number']);
+            }
+            if ($user->otp != $request->otp) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Wrong OTP'
+                ]);
+            }
+            if (Carbon::parse($user->updated_at)->addMinutes(1)->lt(now())) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'OTP is invalid/expired'
+                ]);
+            }
+            $user->otp_verified_at = now();
+            $user->save();
+
+            $user->userDetails;
+            if ($user->userDetails) {
+                $user->userDetails->profile_picture =
+                    $user->userDetails->profile_picture
+                    ? asset('uploads/user/' . $user->userDetails->profile_picture)
+                    : '';
+            }
+            // $user->tokens()->delete();
+            // $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('api_token')->plainTextToken;
+
+            return response()->json(['status' => 'success', 'message' => 'Login successful', 'user' => $user, 'token' => $token], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'success', 'message' => 'Login failed Error: ' . $th->getMessage()]);
+        }
     }
     public function paswordReset(Request $request)
     {

@@ -37,6 +37,7 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
+        // return 123;
         $validate = Validator::make($request->all(), [
             'ride_id' => 'required|exists:rides,id',
             'seats' => 'required',
@@ -101,9 +102,9 @@ class BookingController extends Controller
                 'ride_id' => $ride->id,
                 'passenger_id' => Auth::id(),
                 'seats' => $request->seats,
-                'ride_source' => $ride->source,
-                'ride_destination' => $ride->destination,
-                'ride_date' => $ride->departure_date,
+                'ride_source' => $ride->source_address,
+                'ride_destination' => $ride->destination_address,
+                'ride_date' => $ride->ride_date,
                 'ride_time' => $ride->departure_time,
                 'price_per_seat' => $ride->price_per_seat,
                 'total_price' => $ride->price_per_seat * $request->seats,

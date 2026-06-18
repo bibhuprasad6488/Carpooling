@@ -32,4 +32,9 @@ class RideBooking extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function passenger()
+    {
+        return $this->belongsTo(User::class, 'passenger_id');
+    }
 }

@@ -41,6 +41,18 @@
                         <p>Vehicles</p>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->routeIs(['admin.rides.*']) ? 'active' : '' }} ">
+                    <a href="{{ route('admin.rides.index') }}">
+                        <i class="fas fa-car-side"></i>
+                        <p>Rides</p>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs(['admin.bookings.*']) ? 'active' : '' }} ">
+                    <a href="{{ route('admin.bookings.index') }}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>Bookings</p>
+                    </a>
+                </li>
                 {{-- <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>

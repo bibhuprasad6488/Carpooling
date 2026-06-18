@@ -13,6 +13,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'paswordReset']);
+    Route::post('/send-otp', [AuthController::class, 'sendOTP']);
+    Route::post('/verify-otp', [AuthController::class, 'verifyOTP']);
 
     Route::post('/find-rides', [RideController::class, 'findRides']);
     Route::post('/search-locaton', [RideController::class, 'searchLocations']);
@@ -42,7 +44,7 @@ Route::prefix('v1')->group(function () {
 
         // Booking Management
         Route::get('/driver/booking-requests', [BookingController::class, 'index']);
-        Route::post('/create-booking-request', [BookingController::class, 'store']);
+        Route::post('/create-booking', [BookingController::class, 'store']);
         Route::post('/payment-success', [BookingController::class, 'paymentSuccess']);
         Route::post('/payment-failed', [BookingController::class, 'paymentFailed']);
 
